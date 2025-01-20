@@ -1,5 +1,6 @@
 import requests
 import base64
+import json
 
 from model_configurations import get_model_configuration
 
@@ -44,6 +45,8 @@ def generate_hw01(question):
             ]
     )
     response = llm.invoke([message])
+    if isinstance(response, dict):
+        response = json.dumps(response)
     return JsonOutputParser().invoke(response)
     
 def generate_hw02(question):
@@ -64,6 +67,8 @@ def generate_hw02(question):
             ]
     )
     response = llm.invoke([message])
+    if isinstance(response, dict):
+            response = json.dumps(response)
     return JsonOutputParser().invoke(response)
 
 def generate_hw03(question2, question3):
@@ -138,6 +143,8 @@ def generate_hw03(question2, question3):
     # 執行並獲得LLM的回應
     final_response = JsonOutputParser().invoke(runnable_sequence.invoke({'':'foo'}, {'configurable': {'session_id': 'bob'}}).content)
 
+    if isinstance(final_response, dict):
+            final_response = json.dumps(final_response)
     return final_response
 
 def readImage(image_path):
@@ -163,6 +170,8 @@ def generate_hw04(question):
 
     # 調用LLM
     response = llm.invoke([message])
+    if isinstance(response, dict):
+            response = json.dumps(response)
     return JsonOutputParser().invoke(response)
 
 def demo(question):
@@ -182,5 +191,3 @@ def demo(question):
     response = llm.invoke([message])
     
     return response
-
-print(generate_hw04("請問中華台北的積分是多少?"))
