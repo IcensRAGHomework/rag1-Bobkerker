@@ -9,8 +9,6 @@ from langchain_core.output_parsers.json import JsonOutputParser
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.runnables import RunnableLambda, RunnableSequence
 from langchain_core.chat_history import InMemoryChatMessageHistory
-from PIL import Image
-from io import BytesIO
 
 gpt_chat_version = 'gpt-4o'
 gpt_config = get_model_configuration(gpt_chat_version)
