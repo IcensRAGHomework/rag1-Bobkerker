@@ -19,9 +19,10 @@ gpt_chat_version = 'gpt-4o'
 gpt_config = get_model_configuration(gpt_chat_version)
 
 history = {}
+
 def generate_hw01(question):
     llm = getLLM()
-    prompt = " 依據問句的語言回答對應的語系，僅使用正確的Json格式回應 ,最外層key為\'Result\'，內部key為\'date\'與\'name\'，若有多筆回傳可用json array"
+    prompt = " 依據問句的語言回答對應的語系，僅使用正確的Json格式回應 ,格式範例如下：{\"Result\": [{\"date\": \"2024-10-10\",\"name\": \"國慶日\"}]}"
     message = HumanMessage(
             content=[
                 {"type": "text", "text": question+prompt},
@@ -41,7 +42,7 @@ def generate_hw02(question):
     response = llm.invoke([message])
     json_response = JsonOutputParser().invoke(response)
     calendar_response = getCalendarificData(str(int(json_response['Result']['year'])), json_response['Result']['country'], str(int(json_response['Result']['month'])))
-    prompt = "parse下列JSON檔案，取出holidays.name和holidays.date.iso，轉成最外層key為\'Result\'，內部key為\'date\'與\'name\'的JOSN。請直接告訴我結果，無須告訴我過程。愈解析JSON如下  "
+    prompt = "parse下列JSON檔案，取出holidays.name和holidays.date.iso，轉成JOSN，格式範例如下:{\"Result\": [{\"date\": \"2024-10-10\",\"name\": \"國慶日\"},{\"date\": \"2024-10-09\",\"name\": \"重陽節\"}]}。請直接告訴我結果，無須告訴我過程。愈解析JSON如下  "
     message = HumanMessage(
             content=[
                 {"type": "text", "text": prompt + str(calendar_response)},
