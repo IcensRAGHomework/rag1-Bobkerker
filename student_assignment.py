@@ -1,6 +1,7 @@
 import requests
 import base64
 import json
+import re
 
 from model_configurations import get_model_configuration
 
@@ -36,6 +37,15 @@ def get_by_session_id(session_id):
         history[session_id] = InMemoryChatMessageHistory()
     return history[session_id]
 
+def extract_json(content):
+    # 定義正則表達式來匹配以 "Result" 開頭的部分
+    match = re.search(r'({\s*"Result":.*})', content, re.DOTALL)
+    if match:
+        json_str = match.group(1)
+        return json_str
+    else:
+        return None
+       
 def generate_hw01(question):
     llm = getLLM()
     prompt = " 依據問句的語言回答對應的語系，僅使用正確的Json格式回應 ,格式範例如下：{\"Result\": [{\"date\": \"2024-10-10\",\"name\": \"國慶日\"}]}"
@@ -45,9 +55,13 @@ def generate_hw01(question):
             ]
     )
     response = llm.invoke([message])
+    
     if isinstance(response, dict):
         response = json.dumps(response)
-    return JsonOutputParser().invoke(response)
+    response = JsonOutputParser().invoke(response)
+    if isinstance(response, dict):
+        response = json.dumps(response)
+    return extract_json(response)
     
 def generate_hw02(question):
     llm = getLLM()
@@ -69,7 +83,10 @@ def generate_hw02(question):
     response = llm.invoke([message])
     if isinstance(response, dict):
             response = json.dumps(response)
-    return JsonOutputParser().invoke(response)
+    response = JsonOutputParser().invoke(response)
+    if isinstance(response, dict):
+        response = json.dumps(response)
+    return response
 
 def generate_hw03(question2, question3):
     llm = getLLM()
@@ -170,9 +187,13 @@ def generate_hw04(question):
 
     # 調用LLM
     response = llm.invoke([message])
+    response = JsonOutputParser().invoke(response)
     if isinstance(response, dict):
             response = json.dumps(response)
-    return JsonOutputParser().invoke(response)
+    response = JsonOutputParser().invoke(response)
+    if isinstance(response, dict):
+        response = json.dumps(response)
+    return response
 
 def demo(question):
     llm = AzureChatOpenAI(
