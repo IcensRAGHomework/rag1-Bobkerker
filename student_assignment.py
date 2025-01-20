@@ -20,6 +20,26 @@ gpt_config = get_model_configuration(gpt_chat_version)
 
 history = {}
 
+def getLLM():
+    return AzureChatOpenAI(
+            model=gpt_config['model_name'],
+            deployment_name=gpt_config['deployment_name'],
+            openai_api_key=gpt_config['api_key'],
+            openai_api_version=gpt_config['api_version'],
+            azure_endpoint=gpt_config['api_base'],
+            temperature=gpt_config['temperature']
+    )
+
+def getCalendarificData(year, country, month):
+    calendarificURL = "https://calendarific.com/api/v2/holidays?&api_key=z1DU2ThYZiU65id9DGvtiMpkb4XS16TK"
+    response = requests.get(calendarificURL+"&country="+country+"&year="+ year+"&month="+month)
+    return response.json()
+
+def get_by_session_id(session_id):
+    if(session_id not in history):
+        history[session_id] = InMemoryChatMessageHistory()
+    return history[session_id]
+
 def generate_hw01(question):
     llm = getLLM()
     prompt = " 依據問句的語言回答對應的語系，僅使用正確的Json格式回應 ,格式範例如下：{\"Result\": [{\"date\": \"2024-10-10\",\"name\": \"國慶日\"}]}"
@@ -50,11 +70,6 @@ def generate_hw02(question):
     )
     response = llm.invoke([message])
     return JsonOutputParser().invoke(response)
-
-def getCalendarificData(year, country, month):
-    calendarificURL = "https://calendarific.com/api/v2/holidays?&api_key=z1DU2ThYZiU65id9DGvtiMpkb4XS16TK"
-    response = requests.get(calendarificURL+"&country="+country+"&year="+ year+"&month="+month)
-    return response.json()
 
 def generate_hw03(question2, question3):
     llm = getLLM()
@@ -130,11 +145,6 @@ def generate_hw03(question2, question3):
 
     return final_response
 
-def get_by_session_id(session_id):
-    if(session_id not in history):
-        history[session_id] = InMemoryChatMessageHistory()
-    return history[session_id]
-
 def generate_hw04(question):
     llm = getLLM()
     # 加載圖像
@@ -164,16 +174,6 @@ def generate_hw04(question):
     )
     response = llm.invoke([message])
     return JsonOutputParser().invoke(response)
-
-def getLLM():
-    return AzureChatOpenAI(
-            model=gpt_config['model_name'],
-            deployment_name=gpt_config['deployment_name'],
-            openai_api_key=gpt_config['api_key'],
-            openai_api_version=gpt_config['api_version'],
-            azure_endpoint=gpt_config['api_base'],
-            temperature=gpt_config['temperature']
-    )
 
 def demo(question):
     llm = AzureChatOpenAI(
