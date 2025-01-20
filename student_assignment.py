@@ -142,33 +142,28 @@ def generate_hw03(question2, question3):
 
     return final_response
 
+def readImage(image_path):
+    with open(image_path, 'rb') as image_file:
+         image_bytes = image_file.read()
+    image_base64  = base64.b64encode(image_bytes).decode("utf-8")
+    return image_base64 
+
 def generate_hw04(question):
     llm = getLLM()
-    # 加載圖像
-    image = Image.open('baseball.png')
+    
+    # 將圖像數據編碼為Base64
+    image_data = readImage('baseball.png')
 
-    # 將圖像轉換為位元組數據
-    buffered = BytesIO()
-    image.save(buffered, format="PNG")
-    image_bytes = buffered.getvalue()
-
-    # 將位元組數據編碼為Base64
-    image_base64 = base64.b64encode(image_bytes)
-
-    # 將Base64編碼轉換為字串
-    image_base64_string = image_base64.decode('utf-8')
-    #image = Image.open('baseball.png')
-    #image_data = base64.b64encode(image)
+    # 構建消息
     prompt = "  請用JSON格式輸出，{'Result': {'score': 124}} "
     message = HumanMessage(
-            content=[
-                {"type": "text", "text": question + prompt},
-                {
-                    "type": "image_url",
-                    "image_url": {"url": f"data:image/jpeg;base64,{image_base64_string}"},
-                },
-            ]
+        content=[
+            {"type": "text", "text": question + prompt},
+            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_data}"}},
+        ]
     )
+
+    # 調用LLM
     response = llm.invoke([message])
     return JsonOutputParser().invoke(response)
 
@@ -189,3 +184,5 @@ def demo(question):
     response = llm.invoke([message])
     
     return response
+
+print(generate_hw04("請問中華台北的積分是多少?"))
